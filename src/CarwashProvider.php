@@ -1,14 +1,17 @@
 <?php namespace Carwash;
 
+use Carwash\Console\Scrub;
 use Illuminate\Support\ServiceProvider;
 
 class CarwashProvider extends ServiceProvider
 {
     public function boot()
     {
-        $this->publishes([
-            __DIR__ . '/../config/config.php' => config_path('carwash.php')
-        ]);
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                Scrub::class
+            ]);
+        }
     }
 
     public function register()

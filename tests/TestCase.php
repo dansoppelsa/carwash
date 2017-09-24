@@ -1,12 +1,9 @@
 <?php namespace Carwash;
 
 use Orchestra\Testbench\TestCase as Orchestra;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 
 class TestCase extends Orchestra
 {
-    use DatabaseMigrations;
-
     public function setUp()
     {
         parent::setUp();
