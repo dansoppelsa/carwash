@@ -12,6 +12,10 @@ class CarwashProvider extends ServiceProvider
                 Scrub::class
             ]);
         }
+
+        $this->publishes([
+            __DIR__ . '/../config/config.php' => config_path('carwash.php')
+        ]);
     }
 
     public function register()
