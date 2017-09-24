@@ -21,11 +21,15 @@ class Scrub extends Command
     public function handle()
     {
         collect(config('carwash'))->each(function ($fields, $table) {
+            $this->info("Scrubbing table {$table}.");
             $this->getRecordsFromTable($table)
                 ->each(function ($record) use ($fields, $table) {
                     $this->scrubRecord($record, $table, $fields);
                 });
+            $this->info("{$table} table scrubbed.");
         });
+
+        $this->info("Carwash complete.");
     }
 
     private function scrubRecord($record, $table, $fields)
