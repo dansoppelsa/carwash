@@ -1,19 +1,16 @@
 <?php namespace Carwash;
 
-use Illuminate\Database\Schema\Blueprint;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 
 class TestCase extends Orchestra
 {
-    protected $db;
+    use DatabaseMigrations;
 
     public function setUp()
     {
         parent::setUp();
-        $this->setupConfig();
-        $this->setupDatabaseConnection();
-        $this->migrateDatabase();
+        $this->setUpDatabase($this->app);
     }
 
     protected function getPackageProviders($app)
@@ -21,38 +18,18 @@ class TestCase extends Orchestra
         return [CarwashProvider::class];
     }
 
-    protected function setupConfig()
+    protected function getEnvironmentSetUp($app)
     {
-        $this->app['config']->set('carwash', [
-            'users' => [
-                'first_name' => 'firstName',
-                'last_name' => 'lastName'
-            ]
+        $app['config']->set('database.default', 'testing');
+        $app['config']->set('database.connections.testing', [
+            'driver' => 'sqlite',
+            'database' => ':memory:'
         ]);
     }
 
-    protected function setupDatabaseConnection()
+    protected function setUpDatabase($app)
     {
-        $this->db = new Capsule;
-        $this->db->addConnection([
-            'driver'    => 'mysql',
-            'host'      => '192.168.10.10',
-            'database'  => 'carwash',
-            'username'  => 'homestead',
-            'password'  => 'secret',
-            'charset'   => 'utf8',
-            'collation' => 'utf8_unicode_ci',
-            'prefix'    => '',
-        ]);
-    }
-
-    protected function migrateDatabase()
-    {
-        $this->db->schema()->create('users', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('email');
-        });
+        $app->useDatabasePath(__DIR__);
+        $this->artisan('migrate');
     }
 }
