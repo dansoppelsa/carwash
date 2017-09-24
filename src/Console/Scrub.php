@@ -21,17 +21,28 @@ class Scrub extends Command
     public function handle()
     {
         collect(config('carwash'))->each(function ($fields, $table) {
-            \DB::table($table)->get()
+            $this->getRecordsFromTable($table)
                 ->each(function ($record) use ($fields, $table) {
-                    $record = $this->makeModel($table, (array)$record);
-
-                    $update = collect($fields)->mapWithKeys(function ($fakerKey, $field) use ($record) {
-                        return [$field => $this->faker->{$fakerKey}];
-                    })->toArray();
-
-                    $record->update($update);
+                    $this->scrubRecord($record, $table, $fields);
                 });
         });
+    }
+
+    private function scrubRecord($table, $fields, $record)
+    {
+        $this->makeModel($table, (array)$record)->update($this->getUpdateData($fields));
+    }
+
+    private function getUpdateData($fields)
+    {
+        return collect($fields)->mapWithKeys(function ($fakerKey, $field) {
+            return [$field => $this->faker->{$fakerKey}];
+        })->toArray();
+    }
+
+    private function getRecordsFromTable($table)
+    {
+        return \DB::table($table)->get();
     }
 
     private function makeModel($table, $attributes)
@@ -39,9 +50,6 @@ class Scrub extends Command
         $model = new class extends Model {
             protected $guarded = [];
         };
-        // TODO: Find a way to make this dynamic
-        $model->setKeyName('id');
-        $model->setKeyType('int');
         $model->setTable($table);
         $model->fill($attributes);
         $model->exists = true;
