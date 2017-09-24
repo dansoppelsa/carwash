@@ -4,17 +4,18 @@
 
 ## Installation
 
-#### 1. Install via composer
+#### Install via composer
 ```
 composer require dansoppelsa/carwash
 ```
 
-#### 2. Publish default config file
+## Usage
+#### 1. Publish default config file
 ```
 php artisan vendor:publish
 ```
 
-#### 3. Edit config file at `config/carwash.php` for your application
+#### 2. Edit config file at `config/carwash.php` for your application
 
 ```php
 <?php
@@ -40,7 +41,7 @@ return [
 ];
 ``` 
 
-#### 4. Run Scrub Command
+#### 3. Run Scrub Command
 
 ```php
 php artisan carwash:scrub
