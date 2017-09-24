@@ -40,7 +40,10 @@ class ScrubTest extends TestCase
             'users' => [
                 'first_name' => 'firstName',
                 'last_name' => 'lastName',
-                'email' => 'safeEmail'
+                'email' => 'safeEmail',
+                'password' => function ($faker) {
+                    return $faker->password;
+                }
             ]
         ];
     }

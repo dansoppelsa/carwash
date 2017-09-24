@@ -28,7 +28,7 @@ class Scrub extends Command
         });
     }
 
-    private function scrubRecord($table, $fields, $record)
+    private function scrubRecord($record, $table, $fields)
     {
         $this->makeModel($table, (array)$record)->update($this->getUpdateData($fields));
     }
@@ -36,6 +36,10 @@ class Scrub extends Command
     private function getUpdateData($fields)
     {
         return collect($fields)->mapWithKeys(function ($fakerKey, $field) {
+            if (is_callable($fakerKey)) {
+                return [$field => $fakerKey($this->faker)];
+            }
+
             return [$field => $this->faker->{$fakerKey}];
         })->toArray();
     }
