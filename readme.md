@@ -46,3 +46,19 @@ return [
 ```php
 php artisan carwash:scrub
 ```
+
+### Other
+Instead of passing a Faker Formatter as the value for each field in your **Carwash** config file, alternatively
+you can set the field value to a Closure that returns the new field value. This closure will receive an instance of **Faker**.
+```php
+<?php
+
+return [
+    'users' => [
+        'name' => function ($faker) {
+            return "{$faker->firstName} {$faker->lastName}";
+        },
+        'email' => 'safeEmail'
+    ]
+];
+```
