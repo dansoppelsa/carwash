@@ -3,8 +3,6 @@
 use Faker\Factory as Faker;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Schema\Blueprint;
-use \Schema;
 
 class Scrub extends Command
 {
@@ -55,14 +53,13 @@ class Scrub extends Command
 
     private function makeModel($table, $attributes)
     {
-        $model = new class extends Model {
+        return tap(new class extends Model {
+            public $exists = true;
             protected $guarded = [];
-        };
-        $model->setTable($table);
-        $model->fill($attributes);
-        $model->exists = true;
-
-        return $model;
+        }, function ($model) use ($table, $attributes) {
+            $model->setTable($table);
+            $model->fill($attributes);
+        });
     }
 
 }
