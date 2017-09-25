@@ -25,6 +25,11 @@ return [
         'first_name' => 'firstName',
         'last_name' => 'lastName',
         'email' => 'safeEmail'
+    ],
+    'addresses' => [
+        'street' => 'streetAddress',
+        'city' => 'city',
+        'zip' => 'postcode'
     ]
 ];
 ``` 
