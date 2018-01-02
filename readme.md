@@ -1,6 +1,6 @@
 # Carwash
 
-**Carwash** is a data scrubbing utility for Laravel applications
+**Carwash** is a data scrubbing utility for **Laravel** applications
 
 ## Installation
 
