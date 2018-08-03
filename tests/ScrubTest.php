@@ -13,16 +13,16 @@ class ScrubTest extends TestCase
             'id' => 1,
             'first_name' => 'George',
             'last_name' => 'Costanza',
-            'email' => 'gcostanza@hotmail.com'
+            'email' => 'gcostanza@hotmail.com',
         ]);
         $this->addUser([
             'id' => 2,
             'first_name' => 'Cosmo',
             'last_name' => 'Kramer',
-            'email' => 'cosmo@kramerica.com'
+            'email' => 'cosmo@kramerica.com',
         ]);
 
-       $this->artisan('carwash:scrub');
+        $this->artisan('carwash:scrub');
 
         $user1 = $this->findUser(1);
         $this->assertNotEquals('George', $user1->first_name);
@@ -34,6 +34,35 @@ class ScrubTest extends TestCase
         $this->assertNotEquals('cosmo@kramerica.com', $user2->email);
     }
 
+    public function testThatFormattersCanBeAnInvokableClass()
+    {
+        $formatter = new class ()
+        {
+            public function __invoke($faker)
+            {
+                return 'Foo';
+            }
+        };
+
+        $this->app->config['carwash'] = [
+            'users' => [
+                'first_name' => $formatter,
+            ],
+        ];
+
+        $this->addUser([
+            'id' => 1,
+            'first_name' => 'George',
+            'last_name' => 'Costanza',
+            'email' => 'gcostanza@hotmail.com',
+        ]);
+
+        $this->artisan('carwash:scrub');
+
+        $user1 = $this->findUser(1);
+        $this->assertEquals('Foo', $user1->first_name);
+    }
+
     private function addConfig()
     {
         $this->app->config['carwash'] = [
@@ -43,8 +72,8 @@ class ScrubTest extends TestCase
                 'email' => 'safeEmail',
                 'password' => function ($faker) {
                     return $faker->password;
-                }
-            ]
+                },
+            ],
         ];
     }
 
