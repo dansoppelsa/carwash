@@ -1,6 +1,8 @@
 <?php namespace Carwash;
 
+use Faker\Generator;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Prophecy\Argument;
 
 class ScrubTest extends TestCase
 {
@@ -61,6 +63,27 @@ class ScrubTest extends TestCase
 
         $user1 = $this->findUser(1);
         $this->assertEquals('Foo', $user1->first_name);
+    }
+
+    public function testThatArgumentsCanBePassedToFormatters()
+    {
+        $this->app->config['carwash'] = [
+            'users' => [
+                'first_name' => 'words:3,true',
+            ],
+        ];
+        $this->addUser([
+            'id' => 1,
+            'first_name' => 'George',
+            'last_name' => 'Costanza',
+            'email' => 'gcostanza@hotmail.com',
+        ]);
+
+        $this->artisan('carwash:scrub');
+
+        $user1 = $this->findUser(1);
+
+        $this->assertEquals(3, str_word_count($user1->first_name));
     }
 
     private function addConfig()

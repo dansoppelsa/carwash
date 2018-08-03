@@ -1,6 +1,7 @@
 <?php namespace Carwash\Console;
 
 use Faker\Factory as Faker;
+use Faker\Generator;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,9 +11,9 @@ class Scrub extends Command
     protected $description = 'Scrub data in the database';
     protected $faker;
 
-    public function __construct()
+    public function __construct(Generator $faker)
     {
-        $this->faker = Faker::create();
+        $this->faker = $faker;
         parent::__construct();
     }
 
@@ -49,6 +50,13 @@ class Scrub extends Command
                 return [$field => $fakerKey($this->faker)];
             }
 
+            if (str_contains($fakerKey, ':')) {
+                $formatter = explode(":", $fakerKey)[0];
+                $arguments = explode(",", explode(":", $fakerKey)[1]);
+
+                return [$field => $this->faker->{$formatter}(...$arguments)];
+            }
+
             return [$field => $this->faker->{$fakerKey}];
         })->toArray();
     }
@@ -60,7 +68,8 @@ class Scrub extends Command
 
     private function makeModel($table, $attributes)
     {
-        return tap(new class extends Model {
+        return tap(new class extends Model
+        {
             public $exists = true;
             protected $guarded = [];
         }, function ($model) use ($table, $attributes) {
