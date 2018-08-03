@@ -30,6 +30,9 @@ return [
         'street' => 'streetAddress',
         'city' => 'city',
         'zip' => 'postcode'
+    ],
+   'bios' => [
+        'content' => 'sentences:2'   
     ]
 ];
 ``` 
@@ -41,7 +44,7 @@ More generally, the format of the **Carwash** config file is:
 
 return [
     '[TABLE_NAME]' => [
-        '[COLUMN_NAME]' => '[Faker Formatter]'
+        '[COLUMN_NAME]' => '[Faker Formatter][:argument1,argument2]'
     ]
 ];
 ``` 

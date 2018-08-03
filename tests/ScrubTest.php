@@ -1,8 +1,6 @@
 <?php namespace Carwash;
 
-use Faker\Generator;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Prophecy\Argument;
 
 class ScrubTest extends TestCase
 {
