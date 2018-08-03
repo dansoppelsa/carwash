@@ -30,6 +30,9 @@ return [
         'street' => 'streetAddress',
         'city' => 'city',
         'zip' => 'postcode'
+    ],
+   'bios' => [
+        'content' => 'sentences:2'   
     ]
 ];
 ``` 
@@ -41,7 +44,7 @@ More generally, the format of the **Carwash** config file is:
 
 return [
     '[TABLE_NAME]' => [
-        '[COLUMN_NAME]' => '[Faker Formatter]'
+        '[COLUMN_NAME]' => '[Faker Formatter][:argument1,argument2]'
     ]
 ];
 ``` 
@@ -54,7 +57,7 @@ php artisan carwash:scrub
 
 ### Other
 Instead of passing a Faker Formatter as the value for each field in your **Carwash** config file, alternatively
-you can set the field value to a Closure that returns the new field value. This closure will receive an instance of **Faker**.
+you can set the field value to a Callable that returns the new field value. This closure will receive an instance of **Faker**.
 ```php
 <?php
 
@@ -63,7 +66,15 @@ return [
         'name' => function ($faker) {
             return "{$faker->firstName} {$faker->lastName}";
         },
-        'email' => 'safeEmail'
+        'bio' => new BioFormatter
     ]
 ];
+
+class BioFormatter
+{
+    public function __invoke($faker)
+    {
+        return $faker->sentences(42);
+    }
+}
 ```
