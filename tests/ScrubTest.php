@@ -37,10 +37,19 @@ class ScrubTest extends TestCase
 
     public function testThatFormattersCanBeAnInvokableClass()
     {
-        $formatter = new class ()
+        $formatter = new class ($this)
         {
-            public function __invoke($faker)
+            private $test;
+
+            public function __construct(TestCase $test)
             {
+                $this->test = $test;
+            }
+
+            public function __invoke($faker, $attribute)
+            {
+                $this->test->assertEquals('George', $attribute);
+
                 return 'Foo';
             }
         };
@@ -87,19 +96,29 @@ class ScrubTest extends TestCase
 
     public function testThatTheTableConfigurationCanBeAnInvokableClass()
     {
+        $user = [
+            'id' => 1,
+            'first_name' => 'George',
+            'last_name' => 'Costanza',
+            'email' => 'gcostanza@hotmail.com',
+        ];
+
         $this->app['config']['carwash'] = [
-            'users' => new class ($this)
+            'users' => new class ($this, $user)
             {
                 private $test;
+                private $user;
 
-                public function __construct(TestCase $test)
+                public function __construct(TestCase $test, array $user)
                 {
                     $this->test = $test;
+                    $this->user = $user;
                 }
 
-                public function __invoke($faker)
+                public function __invoke($faker, $record)
                 {
                     $this->test->assertInstanceOf(Generator::class, $faker);
+                    $this->test->assertArraySubset($this->user, $record);
 
                     return [
                         'first_name' => 'Foo'
@@ -108,12 +127,7 @@ class ScrubTest extends TestCase
             }
         ];
 
-        $this->addUser([
-            'id' => 1,
-            'first_name' => 'George',
-            'last_name' => 'Costanza',
-            'email' => 'gcostanza@hotmail.com',
-        ]);
+        $this->addUser($user);
 
         $this->artisan('carwash:scrub');
 
@@ -124,9 +138,17 @@ class ScrubTest extends TestCase
 
     public function testThatTheTableConfigurationCanBeAnAnonymousFunction()
     {
+        $user = [
+            'id' => 1,
+            'first_name' => 'George',
+            'last_name' => 'Costanza',
+            'email' => 'gcostanza@hotmail.com',
+        ];
+
         $this->app['config']['carwash'] = [
-            'users' => function ($faker) {
+            'users' => function ($faker, $record) use ($user) {
                 $this->assertInstanceOf(Generator::class, $faker);
+                $this->assertArraySubset($user, $record);
 
                 return [
                     'first_name' => 'Foo',
@@ -134,12 +156,7 @@ class ScrubTest extends TestCase
             }
         ];
 
-        $this->addUser([
-            'id' => 1,
-            'first_name' => 'George',
-            'last_name' => 'Costanza',
-            'email' => 'gcostanza@hotmail.com',
-        ]);
+        $this->addUser($user);
 
         $this->artisan('carwash:scrub');
 

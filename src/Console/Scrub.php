@@ -40,18 +40,18 @@ class Scrub extends Command
 
     private function scrubRecord($record, $table, $fields)
     {
-        $this->makeModel($table, (array)$record)->update($this->getUpdateData($fields));
+        $this->makeModel($table, (array)$record)->update($this->getUpdateData($fields, (array)$record));
     }
 
-    private function getUpdateData($fields)
+    private function getUpdateData($fields, $record)
     {
         if (is_callable($fields)) {
-            return $fields($this->faker);
+            return $fields($this->faker, $record);
         }
 
-        return collect($fields)->mapWithKeys(function ($fakerKey, $field) {
+        return collect($fields)->mapWithKeys(function ($fakerKey, $field) use ($record) {
             if (is_callable($fakerKey)) {
-                return [$field => $fakerKey($this->faker)];
+                return [$field => $fakerKey($this->faker, $record[$field])];
             }
 
             if (str_contains($fakerKey, ':')) {
