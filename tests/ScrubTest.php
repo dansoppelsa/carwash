@@ -122,6 +122,32 @@ class ScrubTest extends TestCase
         $this->assertEquals('Foo', $user1->first_name);
     }
 
+    public function testThatTheTableConfigurationCanBeAnAnonymousFunction()
+    {
+        $this->app['config']['carwash'] = [
+            'users' => function ($faker) {
+                $this->assertInstanceOf(Generator::class, $faker);
+
+                return [
+                    'first_name' => 'Foo',
+                ];
+            }
+        ];
+
+        $this->addUser([
+            'id' => 1,
+            'first_name' => 'George',
+            'last_name' => 'Costanza',
+            'email' => 'gcostanza@hotmail.com',
+        ]);
+
+        $this->artisan('carwash:scrub');
+
+        $user1 = $this->findUser(1);
+
+        $this->assertEquals('Foo', $user1->first_name);
+    }
+
     private function addConfig()
     {
         $this->app->config['carwash'] = [
