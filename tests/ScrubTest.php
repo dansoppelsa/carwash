@@ -1,5 +1,6 @@
 <?php namespace Carwash;
 
+use Faker\Generator;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class ScrubTest extends TestCase
@@ -82,6 +83,43 @@ class ScrubTest extends TestCase
         $user1 = $this->findUser(1);
 
         $this->assertEquals(3, str_word_count($user1->first_name));
+    }
+
+    public function testThatTheTableConfigurationCanBeAnInvokableClass()
+    {
+        $this->app['config']['carwash'] = [
+            'users' => new class ($this)
+            {
+                private $test;
+
+                public function __construct(TestCase $test)
+                {
+                    $this->test = $test;
+                }
+
+                public function __invoke($faker)
+                {
+                    $this->test->assertInstanceOf(Generator::class, $faker);
+
+                    return [
+                        'first_name' => 'Foo'
+                    ];
+                }
+            }
+        ];
+
+        $this->addUser([
+            'id' => 1,
+            'first_name' => 'George',
+            'last_name' => 'Costanza',
+            'email' => 'gcostanza@hotmail.com',
+        ]);
+
+        $this->artisan('carwash:scrub');
+
+        $user1 = $this->findUser(1);
+
+        $this->assertEquals('Foo', $user1->first_name);
     }
 
     private function addConfig()

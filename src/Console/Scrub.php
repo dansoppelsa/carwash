@@ -45,6 +45,10 @@ class Scrub extends Command
 
     private function getUpdateData($fields)
     {
+        if (is_callable($fields)) {
+            return $fields($this->faker);
+        }
+
         return collect($fields)->mapWithKeys(function ($fakerKey, $field) {
             if (is_callable($fakerKey)) {
                 return [$field => $fakerKey($this->faker)];
