@@ -28,7 +28,7 @@ class Scrub extends Command
             $records = $this->getRecordsFromTable($table);
             $this->info("Found {$records->count()} records...");
             $records->each(function ($record) use ($fields, $table) {
-                $this->scrubRecord($record, $table, $fields);
+                $this->scrubRecord((array)$record, $table, $fields);
             });
 
             $this->info("<error>{$table}</error> table scrubbed.");
@@ -40,7 +40,7 @@ class Scrub extends Command
 
     private function scrubRecord($record, $table, $fields)
     {
-        $this->makeModel($table, (array)$record)->update($this->getUpdateData($fields, (array)$record));
+        $this->makeModel($table, $record)->update($this->getUpdateData($fields, $record));
     }
 
     private function getUpdateData($fields, $record)
