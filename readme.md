@@ -83,12 +83,20 @@ class BioFormatter
 
 Callables can also replace entire table configurations allowing full control over what data is scrubbed and how.
 
-```
+```php
+<?php
+
 return [
-    'coupons' => function ($faker, $recordToScrub) {
+    'users' => function ($faker, $user) {
+        $firstName = $faker->firstName;
+        $lastName = $faker->lastName;
+    
         return [
-            'value' => $recordToScrub['type'] == 'flat' ? $faker->numberBetween(1, 15) : $faker->numberBetween(25, 50)/100,
-        ]
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'email' => $firstName . "." . $lastName. "@" . $faker->safeEmailDomain,
+            'phone' => substr($user['phone'], 0, 3) . "-555-" . $faker->randomNumber(4)
+        ];
     },
 ];
 ```
