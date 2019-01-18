@@ -1,5 +1,6 @@
 <?php namespace Carwash;
 
+use Faker\Generator;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class ScrubTest extends TestCase
@@ -36,10 +37,19 @@ class ScrubTest extends TestCase
 
     public function testThatFormattersCanBeAnInvokableClass()
     {
-        $formatter = new class ()
+        $formatter = new class ($this)
         {
-            public function __invoke($faker)
+            private $test;
+
+            public function __construct(TestCase $test)
             {
+                $this->test = $test;
+            }
+
+            public function __invoke($faker, $attribute)
+            {
+                $this->test->assertEquals('George', $attribute);
+
                 return 'Foo';
             }
         };
@@ -82,6 +92,77 @@ class ScrubTest extends TestCase
         $user1 = $this->findUser(1);
 
         $this->assertEquals(3, str_word_count($user1->first_name));
+    }
+
+    public function testThatTheTableConfigurationCanBeAnInvokableClass()
+    {
+        $user = [
+            'id' => 1,
+            'first_name' => 'George',
+            'last_name' => 'Costanza',
+            'email' => 'gcostanza@hotmail.com',
+        ];
+
+        $this->app['config']['carwash'] = [
+            'users' => new class ($this, $user)
+            {
+                private $test;
+                private $user;
+
+                public function __construct(TestCase $test, array $user)
+                {
+                    $this->test = $test;
+                    $this->user = $user;
+                }
+
+                public function __invoke($faker, $record)
+                {
+                    $this->test->assertInstanceOf(Generator::class, $faker);
+                    $this->test->assertArraySubset($this->user, $record);
+
+                    return [
+                        'first_name' => 'Foo'
+                    ];
+                }
+            }
+        ];
+
+        $this->addUser($user);
+
+        $this->artisan('carwash:scrub');
+
+        $user1 = $this->findUser(1);
+
+        $this->assertEquals('Foo', $user1->first_name);
+    }
+
+    public function testThatTheTableConfigurationCanBeAnAnonymousFunction()
+    {
+        $user = [
+            'id' => 1,
+            'first_name' => 'George',
+            'last_name' => 'Costanza',
+            'email' => 'gcostanza@hotmail.com',
+        ];
+
+        $this->app['config']['carwash'] = [
+            'users' => function ($faker, $record) use ($user) {
+                $this->assertInstanceOf(Generator::class, $faker);
+                $this->assertArraySubset($user, $record);
+
+                return [
+                    'first_name' => 'Foo',
+                ];
+            }
+        ];
+
+        $this->addUser($user);
+
+        $this->artisan('carwash:scrub');
+
+        $user1 = $this->findUser(1);
+
+        $this->assertEquals('Foo', $user1->first_name);
     }
 
     private function addConfig()
