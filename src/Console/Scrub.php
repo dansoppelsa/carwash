@@ -4,6 +4,7 @@ use Faker\Factory as Faker;
 use Faker\Generator;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Scrub extends Command
 {
@@ -54,7 +55,7 @@ class Scrub extends Command
                 return [$field => $fakerKey($this->faker, $record[$field])];
             }
 
-            if (str_contains($fakerKey, ':')) {
+            if (Str::contains($fakerKey, ':')) {
                 $formatter = explode(":", $fakerKey)[0];
                 $arguments = explode(",", explode(":", $fakerKey)[1]);
 
