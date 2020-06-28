@@ -118,7 +118,10 @@ class ScrubTest extends TestCase
                 public function __invoke($faker, $record)
                 {
                     $this->test->assertInstanceOf(Generator::class, $faker);
-                    $this->test->assertArraySubset($this->user, $record);
+                    $this->test->assertEquals($this->user['id'], $record['id']);
+                    $this->test->assertEquals($this->user['first_name'], $record['first_name']);
+                    $this->test->assertEquals($this->user['last_name'], $record['last_name']);
+                    $this->test->assertEquals($this->user['email'], $record['email']);
 
                     return [
                         'first_name' => 'Foo'
@@ -148,7 +151,10 @@ class ScrubTest extends TestCase
         $this->app['config']['carwash'] = [
             'users' => function ($faker, $record) use ($user) {
                 $this->assertInstanceOf(Generator::class, $faker);
-                $this->assertArraySubset($user, $record);
+                $this->assertEquals($user['id'], $record['id']);
+                $this->assertEquals($user['first_name'], $record['first_name']);
+                $this->assertEquals($user['last_name'], $record['last_name']);
+                $this->assertEquals($user['email'], $record['email']);
 
                 return [
                     'first_name' => 'Foo',
