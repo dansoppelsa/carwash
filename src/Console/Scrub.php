@@ -76,6 +76,7 @@ class Scrub extends Command
         return tap(new class extends Model
         {
             public $exists = true;
+            public $timestamps = false;
             protected $guarded = [];
         }, function ($model) use ($table, $attributes) {
             $model->setTable($table);
